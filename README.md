@@ -4,4 +4,4 @@ Database of the multiplayer game cotains various information about persons, enem
 
 ## Scheme
 
-![Relationship Scheme](/images/Scheme1.png)
+![Relationship Scheme](/Images/Scheme1.PNG)
