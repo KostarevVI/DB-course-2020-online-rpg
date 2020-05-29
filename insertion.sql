@@ -30,6 +30,7 @@ values ('Large sword', 'Swordmans weapon'),
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- /*
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * ENEMY
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- */
+ALTER TABLE enemy ALTER COLUMN update_date SET DEFAULT now();
 INSERT INTO enemy(health, class_of_person_id, experience) 
 values (200, (SELECT id FROM class_of_person WHERE name='Swordman'), 20),
 (120, (SELECT id FROM class_of_person WHERE name='Archer'), 10),
@@ -54,6 +55,7 @@ values ((SELECT id FROM inventory_enemy WHERE enemy_id=(SELECT id FROM enemy WHE
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- /*
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * PERSON
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- */
+ALTER TABLE person ALTER COLUMN update_date SET DEFAULT now();
 INSERT INTO person(class_of_person_id, health, experience, user_id) 
 values ((SELECT id FROM class_of_person WHERE name='Swordman'), 250, 0, (SELECT id FROM user_data WHERE email='vas9@gmail.com')),
 ((SELECT id FROM class_of_person WHERE name='Archer'), 170, 0, (SELECT id FROM user_data WHERE email='pit3@yandex.ru')),
@@ -90,8 +92,8 @@ values ('Swordman skill 1', 'Damage +10', 50, 'f', (SELECT id FROM class_of_pers
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- * MEETUP
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- */
 ALTER TABLE meetup ALTER COLUMN meetup_date SET DEFAULT now();
-INSERT INTO meetup(person_id, enemy_id, result) 					-- result: 'l' - персонаж проиграл, 'w' - персонаж победил, 'd' - битва прервалась (ничья)
-values ((SELECT id FROM person WHERE user_id=(SELECT id FROM user_data WHERE email='vas9@gmail.com')), (SELECT id FROM enemy WHERE class_of_person_id=(SELECT id FROM class_of_person WHERE name='Swordman')), 'w'),
-((SELECT id FROM person WHERE user_id=(SELECT id FROM user_data WHERE email='pit3@yandex.ru')), (SELECT id FROM enemy WHERE class_of_person_id=(SELECT id FROM class_of_person WHERE name='Mage')), 'l'),
-((SELECT id FROM person WHERE user_id=(SELECT id FROM user_data WHERE email='mark3f@mail.ru')), (SELECT id FROM enemy WHERE class_of_person_id=(SELECT id FROM class_of_person WHERE name='Archer')), 'd');
+INSERT INTO meetup(person_id, enemy_id, result) 					--result: 'loose' - персонаж проиграл, 'win' - персонаж победил, 'draw' - битва прервалась (ничья)
+values ((SELECT id FROM person WHERE user_id=(SELECT id FROM user_data WHERE email='vas9@gmail.com')), (SELECT id FROM enemy WHERE class_of_person_id=(SELECT id FROM class_of_person WHERE name='Swordman')), 'win'),
+((SELECT id FROM person WHERE user_id=(SELECT id FROM user_data WHERE email='pit3@yandex.ru')), (SELECT id FROM enemy WHERE class_of_person_id=(SELECT id FROM class_of_person WHERE name='Mage')), 'loose'),
+((SELECT id FROM person WHERE user_id=(SELECT id FROM user_data WHERE email='mark3f@mail.ru')), (SELECT id FROM enemy WHERE class_of_person_id=(SELECT id FROM class_of_person WHERE name='Archer')), 'draw');
 
