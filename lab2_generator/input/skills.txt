@@ -1,0 +1,6 @@
+Theif skill 1
+Theif skill 2
+Assassin skill 1
+Assassin skill 2
+Cleric skill 1
+Cleric skill 2
