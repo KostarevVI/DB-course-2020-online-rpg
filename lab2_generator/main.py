@@ -130,7 +130,7 @@ def generate_person(amount):
         class_of_person_id = random.choice(class_of_person_ids)[0]
         health = 10 * random.randint(10, 30)
         experience = 5 * random.randint(0, 19)
-        update_date = random_date(today - datetime.timedelta(days=365),
+        update_date = random_date(today - datetime.timedelta(days=2 * 365),
                                   today)
         is_enemy = True
 
