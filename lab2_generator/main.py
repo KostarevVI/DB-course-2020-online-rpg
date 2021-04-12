@@ -31,11 +31,57 @@ class_of_person_ids = ()
 user_data_ids = ()
 person_ids = ()
 
+item_array = []
+class_of_person_array = []
+skill_array = []
+user_data_array = []
+person_array = []
+inventory_person_array = []
+meetup_array = []
+inventory_person_items_update_array = []
+inventory_person_items_insert_array = []
+inventory_person_items_update_tuple = []
+
 items = open("input/items.txt", "r").readlines()
 classes = open("input/classes.txt", "r").readlines()
 skills = open("input/skills.txt", "r").readlines()
 nicknames = open("input/nicknames.txt", "r").readlines()
 email_domains = open("input/email_domains.txt", "r").readlines()
+
+
+def add_on_update(inventory_person_id, item_id, current_item):
+    amount_item = int(current_item[4]) + 1
+    update_date = random_date(current_item[5], today)
+    inventory_person_items_update_array.append([amount_item,
+                                                update_date,
+                                                inventory_person_id[0],
+                                                item_id[0]])
+
+
+def amount_of_insert_and_updates_for_person(inventory_person_id, insert_list, update_list):
+    update_items_dictionary = {}
+    insert_items = 0
+    for element in update_list:
+        if element[2] == inventory_person_id:
+            if update_items_dictionary.get(element[3]) is not None:
+                if update_items_dictionary[element[3]] < element[0]:
+                    update_items_dictionary[element[3]] = element[0]
+            else:
+                update_items_dictionary[element[3]] = element[0]
+
+    for element in insert_list:
+        if element[0] == inventory_person_id and update_items_dictionary.get(element[1]) is None:
+            insert_items += 1
+
+    total_amount = insert_items + sum(update_items_dictionary.values())
+    return total_amount
+
+
+def list_to_tuple(update_list):
+    list_temp = []
+    for element in update_list:
+        list_temp.append(tuple(element))
+    return tuple(list_temp)
 
 
 def random_string(length):
@@ -64,9 +110,12 @@ def generate_item():
         element = element.replace("\n", "")
         if element not in item_names:
             description = random_string(random.randint(5, 15))
-            cursor.execute(
-                'INSERT INTO \"item\" VALUES (default, \'{}\', \'{}\') ON CONFLICT DO NOTHING'
-                    .format(element, description))
+            item_array.append((element, description))
+
+    if item_array:
+        temp_list = ','.join(['%s'] * len(item_array))
+        cursor.execute(
+            'INSERT INTO \"item\"(name, description) VALUES {} ON CONFLICT DO NOTHING'.format(temp_list), item_array)
     cursor.execute('SELECT id FROM item')
     item_ids = cursor.fetchall()
 
@@ -79,9 +128,12 @@ def generate_class_of_person():
         element = element.replace("\n", "")
         if element not in class_name:
             description = random_string(random.randint(5, 15))
-            cursor.execute(
-                'INSERT INTO \"class_of_person\" VALUES (default, \'{}\', \'{}\') ON CONFLICT DO NOTHING'
-                    .format(element, description))
+            class_of_person_array.append((element, description))
+
+    if class_of_person_array:
+        temp_list = ','.join(['%s'] * len(class_of_person_array))
+        cursor.execute('INSERT INTO \"class_of_person\"(name, description) VALUES {} ON CONFLICT DO NOTHING'
+                       .format(temp_list), class_of_person_array)
     cursor.execute('SELECT id FROM class_of_person')
     class_of_person_ids = cursor.fetchall()
     generate_skill()
@@ -98,12 +150,12 @@ def generate_skill():
             equiped = False
             cursor.execute('SELECT id FROM class_of_person WHERE name=\'{}\''.format(element.split()[0]))
             class_of_person_id = cursor.fetchone()[0]
-            cursor.execute('INSERT INTO skill VALUES (default, \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')'
-                           'ON CONFLICT DO NOTHING'.format(element,
-                                                           description,
-                                                           cost,
-                                                           equiped,
-                                                           class_of_person_id))
+            skill_array.append((element, description, cost, equiped, class_of_person_id))
+
+    if skill_array:
+        temp_list = ','.join(['%s'] * len(skill_array))
+        cursor.execute('INSERT INTO skill(name, description, cost, equiped, class_of_person_id) VALUES {} '
+                       'ON CONFLICT DO NOTHING'.format(temp_list), skill_array)
 
 
 def generate_user_data(amount):
@@ -115,10 +167,12 @@ def generate_user_data(amount):
         email_domain = random.choice(email_domains)
         email_domain = email_domain.replace("\n", "")
         email = random_string(random.randint(10, 20)) + email_domain
-        cursor.execute('INSERT INTO user_data VALUES (default, \'{}\', \'{}\', \'{}\') ON CONFLICT DO NOTHING'
-                       .format(email,
-                               password,
-                               nickname[:20]))
+        user_data_array.append((email, password, nickname[:20]))
+
+    if user_data_array:
+        temp_list = ','.join(['%s'] * len(user_data_array))
+        cursor.execute('INSERT INTO user_data(email, password, nickname) VALUES {} ON CONFLICT DO NOTHING'
+                       .format(temp_list), user_data_array)
     cursor.execute('SELECT id FROM user_data')
     user_data_ids = cursor.fetchall()
 
@@ -137,26 +191,18 @@ def generate_person(amount):
         cursor.execute('SELECT id FROM user_data')
         user_data_ids = cursor.fetchall()
 
+        user_id = [None]
+
         if i % 10 != 0:
             user_id = random.choice(user_data_ids)
             is_enemy = False
-            cursor.execute(
-                'INSERT INTO person VALUES (default, \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')'.format(
-                    class_of_person_id,
-                    health,
-                    experience,
-                    user_id[0],
-                    update_date,
-                    is_enemy))
-        else:
-            cursor.execute(
-                'INSERT INTO person (id, class_of_person_id, health, experience, update_date, is_enemy) '
-                'VALUES (default, \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')'.format(
-                    class_of_person_id,
-                    health,
-                    experience,
-                    update_date,
-                    is_enemy))
+        person_array.append((class_of_person_id, health, experience, user_id[0], update_date, is_enemy))
+
+    if person_array:
+        temp_list = ','.join(['%s'] * len(person_array))
+        cursor.execute(
+            'INSERT INTO person (class_of_person_id, health, experience, user_id, update_date, is_enemy) '
+            'VALUES {}'.format(temp_list), person_array)
 
     cursor.execute('SELECT id FROM person')
     person_ids = cursor.fetchall()
@@ -172,8 +218,12 @@ def generate_inventory_person():
         if element not in person_id_in_inventory_person:
             person_id = element[0]
             inventory_size = 5 * random.randint(2, 8)
-            cursor.execute('INSERT INTO inventory_person VALUES (default, \'{}\', \'{}\')'.format(person_id,
-                                                                                                  inventory_size))
+            inventory_person_array.append((person_id, inventory_size))
+
+    if inventory_person_array:
+        temp_list = ','.join(['%s'] * len(inventory_person_array))
+        cursor.execute('INSERT INTO inventory_person(person_id, inventory_size) VALUES {}'
+                       .format(temp_list), inventory_person_array)
     cursor.execute('SELECT id FROM inventory_person')
     inventory_person_ids = cursor.fetchall()
 
@@ -196,12 +246,14 @@ def generate_meetup(amount):
             meetup_date = person_update_date
         else:
             meetup_date = enemy_update_date
-        result = random.choice(('win', 'loose', 'draw'))  # ?????
 
-        cursor.execute('INSERT INTO meetup VALUES (default, \'{}\', \'{}\', \'{}\', \'{}\')'.format(person_id[0],
-                                                                                                    result,
-                                                                                                    meetup_date[0][0],
-                                                                                                    enemy_id[0]))
+        result = random.choice(('win', 'loose', 'draw'))
+        meetup_array.append((person_id[0], result, meetup_date[0][0], enemy_id[0]))
+
+    if meetup_array:
+        temp_list = ','.join(['%s'] * len(meetup_array))
+        cursor.execute('INSERT INTO meetup (person_id, result, meetup_date, enemy_id) VALUES {}'
+                       .format(temp_list), meetup_array)
 
 
 def generate_inventory_person_items(amount):
@@ -220,43 +272,75 @@ def generate_inventory_person_items(amount):
                        .format(inventory_person_id[0]))
         all_amount = cursor.fetchall()
 
-        if sum(element[0] for element in all_amount) < inventory_person_tuple[2]:
-            cursor.execute('SELECT item_id FROM inventory_person_items WHERE inventory_person_id=\'{}\''
-                           .format(inventory_person_id[0]))
-            item_id_in_inventory_person_items = cursor.fetchall()
+        current_amount_of_items = sum(element[0] for element in all_amount) + \
+            amount_of_insert_and_updates_for_person(inventory_person_id[0],
+                                                    inventory_person_items_insert_array,
+                                                    inventory_person_items_update_array)
 
-            cursor.execute('SELECT update_date FROM person WHERE id=\'{}\''.format(inventory_person_tuple[1]))
-            person_update_date = cursor.fetchone()
-
+        if current_amount_of_items < inventory_person_tuple[2]:
             cursor.execute('SELECT * FROM inventory_person_items WHERE inventory_person_id=\'{}\' AND item_id=\'{}\''.
                            format(inventory_person_id[0], item_id[0]))
             current_item = cursor.fetchone()
 
+            cursor.execute('SELECT update_date FROM person WHERE id=\'{}\''.format(inventory_person_tuple[1]))
+            person_update_date = cursor.fetchone()
+
             is_deleted = False
 
-            if item_id_in_inventory_person_items and item_id in item_id_in_inventory_person_items and current_item \
-                    and not bool(current_item[3]):
-                amount_item = int(current_item[4]) + 1
-                update_date = random_date(current_item[5], today)
+            if (current_item and not bool(current_item[3])) or (inventory_person_id[0],
+                                                                item_id[0],
+                                                                person_update_date[0],
+                                                                is_deleted,
+                                                                1,
+                                                                person_update_date[0]) \
+                    in inventory_person_items_insert_array:
+                # если такой айтем уже в инвентаре игрока – апдейтим его
+                if not current_item:
+                    current_item = (inventory_person_id[0],
+                                    item_id[0],
+                                    person_update_date[0],
+                                    is_deleted,
+                                    1,
+                                    person_update_date[0])
 
-                cursor.execute('UPDATE inventory_person_items SET amount=\'{}\', update_date=\'{}\' '
-                               'WHERE inventory_person_id=\'{}\' AND item_id=\'{}\''.format(amount_item,
-                                                                                            update_date,
-                                                                                            inventory_person_id[0],
-                                                                                            item_id[0]))
+                if inventory_person_items_update_array:
+                    flag = False
+                    # перебираем все кортежи на апдейт и если наш есть – amount+1
+                    for index, element in enumerate(inventory_person_items_update_array):
+                        if inventory_person_id[0] == element[2] and item_id[0] == element[3]:
+                            flag = True
+                            inventory_person_items_update_array[index][0] += 1
+                    # если кортежа на апдейт ещё нет в списке, но список не пуст – добавляем этот кортеж
+                    if not flag:
+                        add_on_update(inventory_person_id, item_id, current_item)
+                # если список пустой – добавляем кортеж на апдейт
+                else:
+                    add_on_update(inventory_person_id, item_id, current_item)
+
+            # если нету такого айтема в инвентаре у игрока – добавляем его туда
             else:
                 add_date = person_update_date[0]
                 amount_item = 1
                 update_date = add_date
+                inventory_person_items_insert_array.append((inventory_person_id[0],
+                                                            item_id[0],
+                                                            add_date,
+                                                            is_deleted,
+                                                            amount_item,
+                                                            update_date))
 
-                cursor.execute(
-                    'INSERT INTO inventory_person_items VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')'
-                    .format(inventory_person_id[0],
-                            item_id[0],
-                            add_date,
-                            is_deleted,
-                            amount_item,
-                            update_date))
+    if inventory_person_items_insert_array:
+        temp_list = ','.join(['%s'] * len(inventory_person_items_insert_array))
+        cursor.execute(
+            'INSERT INTO inventory_person_items VALUES {}'.format(temp_list), inventory_person_items_insert_array)
+
+    if inventory_person_items_update_array:
+        temp_list = ','.join(['%s'] * len(inventory_person_items_update_array))
+        cursor.execute('UPDATE inventory_person_items AS t ' \
+                       'SET amount = c.amount, update_date = c.update_date ' \
+                       'FROM (VALUES {}) as c(amount, update_date, inventory_person_id, item_id) ' \
+                       'WHERE c.inventory_person_id = t.inventory_person_id AND c.item_id = t.item_id'
+                       .format(temp_list), list_to_tuple(inventory_person_items_update_array))
 
 
 def generate_data(args):
@@ -278,10 +362,10 @@ def generate_data(args):
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description="Details of data generation")
-    args.add_argument('--use', action="store", dest="user_data")
-    args.add_argument('--per', action="store", dest="persons")
-    args.add_argument('--inv', action="store", dest="inventory_person_items")
-    args.add_argument('--mee', action="store", dest="meetup")
+    args.add_argument('-u', action="store", dest="user_data")
+    args.add_argument('-p', action="store", dest="persons")
+    args.add_argument('-i', action="store", dest="inventory_person_items")
+    args.add_argument('-m', action="store", dest="meetup")
     arguments = args.parse_args()
 
     generate_data(arguments)
