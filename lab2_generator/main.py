@@ -227,18 +227,27 @@ def generate_person(amount):
 
     cursor.execute('SELECT id FROM person')
     person_ids = cursor.fetchall()
-    generate_inventory_person()
+    generate_inventory_person(amount, True)
     generate_person_skill()
 
 
-def generate_inventory_person():
+def generate_inventory_person(amount, from_person):
+    global person_ids
     global inventory_person_ids
     cursor.execute('SELECT person_id FROM inventory_person')
     person_id_in_inventory_person = cursor.fetchall()
 
-    for element in person_ids:
-        if element not in person_id_in_inventory_person:
-            person_id = element[0]
+    if from_person:
+        for element in person_ids:
+            if element not in person_id_in_inventory_person:
+                person_id = element[0]
+                inventory_size = 5 * random.randint(2, 8)
+                inventory_person_array.append((person_id, inventory_size))
+    else:
+        cursor.execute('SELECT id FROM person')
+        person_ids = cursor.fetchall()
+        for i in range(int(amount)):
+            person_id = random.choice(person_ids)
             inventory_size = 5 * random.randint(2, 8)
             inventory_person_array.append((person_id, inventory_size))
 
@@ -375,6 +384,9 @@ def generate_data(args):
     if args.persons is not None:
         generate_person(arguments.persons)
 
+    if args.inventory_person is not None:
+        generate_inventory_person(arguments.inventory_person, False)
+
     if args.inventory_person_items is not None:
         generate_inventory_person_items(arguments.inventory_person_items)
 
@@ -388,6 +400,7 @@ if __name__ == '__main__':
     args.add_argument('-p', action="store", dest="persons")
     args.add_argument('-i', action="store", dest="inventory_person_items")
     args.add_argument('-m', action="store", dest="meetup")
+    args.add_argument('-inv', action="store", dest="inventory_person")
     arguments = args.parse_args()
 
     generate_data(arguments)
