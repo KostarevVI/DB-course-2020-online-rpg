@@ -22,6 +22,23 @@ UPDATE meetup SET new_enemy_id=enemy_id+3;
 ALTER TABLE meetup DROP COLUMN enemy_id;
 ALTER TABLE meetup RENAME COLUMN new_enemy_id TO enemy_id;
 
+------------------------------------ДОБАВЛЕНИЕ PERSON_SKILL
+CREATE TABLE person_skill (
+person_id INTEGER REFERENCES person(id) ON DELETE CASCADE,
+skill_id INTEGER REFERENCES skill(id) ON DELETE CASCADE,
+equiped BOOL NOT NULL
+);
+
+insert into person_skill VALUES (1, 1, 'f'),
+								(1, 2, 'f'),
+								(2, 3, 'f'),
+								(2, 4, 'f'),
+								(3, 5, 'f'),
+								(3, 6, 'f');
+
+------------------------------------ИЗМЕНЕНИЕ SKILL
+ALTER TABLE skill DROP COLUMN equiped;
+
 ------------------------------------УДАЛЕНИЕ ЛИШНИХ ТАБЛИЦ
 DROP TABLE inventory_enemy_items;
 DROP TABLE inventory_enemy;

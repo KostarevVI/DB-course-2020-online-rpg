@@ -38,6 +38,7 @@ user_data_array = []
 person_array = []
 inventory_person_array = []
 meetup_array = []
+person_skill_array = []
 inventory_person_items_update_array = []
 inventory_person_items_insert_array = []
 inventory_person_items_update_tuple = []
@@ -147,15 +148,35 @@ def generate_skill():
         if element not in skill_name:
             description = random_string(random.randint(5, 15))
             cost = 50 * (index % 2 + 1)
-            equiped = False
             cursor.execute('SELECT id FROM class_of_person WHERE name=\'{}\''.format(element.split()[0]))
             class_of_person_id = cursor.fetchone()[0]
-            skill_array.append((element, description, cost, equiped, class_of_person_id))
+            skill_array.append((element, description, cost, class_of_person_id))
 
     if skill_array:
         temp_list = ','.join(['%s'] * len(skill_array))
-        cursor.execute('INSERT INTO skill(name, description, cost, equiped, class_of_person_id) VALUES {} '
+        cursor.execute('INSERT INTO skill(name, description, cost, class_of_person_id) VALUES {} '
                        'ON CONFLICT DO NOTHING'.format(temp_list), skill_array)
+
+
+def generate_person_skill():
+    cursor.execute('SELECT person_id FROM person_skill')
+    person_id_in_person_skill = cursor.fetchall()
+
+    for element in person_ids:
+        if element not in person_id_in_person_skill:
+            person_id = element[0]
+            cursor.execute('SELECT class_of_person_id FROM person WHERE id=\'{}\''.format(person_id))
+            person_class = cursor.fetchall()
+            cursor.execute('SELECT id FROM skill WHERE class_of_person_id={}'.format(person_class[0][0]))
+            class_skills = cursor.fetchall()
+            for skill_temp in class_skills:
+                skill_id = skill_temp[0]
+                person_skill_array.append((person_id, skill_id, False))
+
+    if person_skill_array:
+        temp_list = ','.join(['%s'] * len(person_skill_array))
+        cursor.execute('INSERT INTO person_skill VALUES {}'
+                       .format(temp_list), person_skill_array)
 
 
 def generate_user_data(amount):
@@ -207,6 +228,7 @@ def generate_person(amount):
     cursor.execute('SELECT id FROM person')
     person_ids = cursor.fetchall()
     generate_inventory_person()
+    generate_person_skill()
 
 
 def generate_inventory_person():
