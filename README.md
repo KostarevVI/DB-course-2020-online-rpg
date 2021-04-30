@@ -2,6 +2,10 @@
 
 Database of the multiplayer game cotains various information about persons, enemies, items, users and game logic.
 
-## Scheme
+## Structure before changing script
 
-![Relationship Scheme](/Images/Scheme1.png)
+![Relationship Scheme](/Images/Scheme2.png)
+
+## Structure after changing script
+
+![Relationship Scheme](/Images/Scheme3.png)
