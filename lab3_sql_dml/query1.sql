@@ -1,3 +1,6 @@
+-- Запрос 1
+-- Вывести игроков, которые за последние полгода каждый месяц увеличивали количество
+-- уникальных полученных артефактов
 WITH inventory_to_person_half_year_table AS (
 	SELECT ip.person_id, item_id, MIN(add_date) AS add_date FROM inventory_person_items ipi 
 	INNER JOIN inventory_person ip ON ipi.inventory_person_id = ip.id 
@@ -36,4 +39,3 @@ WITH inventory_to_person_half_year_table AS (
 )
 
 SELECT * FROM person WHERE id IN (SELECT * FROM gain_rare_item_every_month)
-
