@@ -1,0 +1,78 @@
+{% extends "base.html" %} {% block title %} Person Statistics {% endblock %} {% block content%}
+<h1 align="center">Person Statistics</h1>
+<h4>Stats For Current Person Is:</h4>
+<div class="row" align="center">
+        <div class="col-lg-2">
+            <h5>Class: {{person.class_of_person.name}}</h5>
+        </div>
+        <div class="col-lg-2">
+            <h5>Health: {{person.health}}</h5>
+        </div>
+        <div class="col-lg-2">
+            <h5>Experience: {{person.experience}}</h5>
+        </div>
+        <div class="col-lg-2">
+            <h5>Inventories: {{inventories_amount}}</h5>
+        </div>
+        <div class="col-lg-2">
+            <h5>Items: {{items_amount}}</h5>
+        </div>
+        <div class="col-lg-2">
+            <h5>Skills unlocked: {{skills_unlocked}}</h5>
+        </div>
+
+</div>
+<h4>You've Attacked:</h4>
+  {% if meetups_p_attack|length > 0 %}
+    <table id="person_attack_table">
+      <thead>
+        <tr>
+          <th><b>Nickname</b>
+          </th>
+          <th><b>Result</b>
+          </th>
+          <th><b>Date</b>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="searchable">
+        {% for element in meetups_p_attack %}
+          <tr class="warning">
+            <td>{{ element.nickname}}</td>
+            <td>{{ element.Meetup.result }}</td>
+            <td>{{ element.Meetup.meetup_date }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>You haven't attacked anyone yet</p>
+  {% endif %}
+<br>
+<h4>You've Been Attacked:</h4>
+  {% if meetups_p_defence|length > 0 %}
+    <table id="person_defence_table">
+      <thead>
+        <tr>
+          <th><b>Nickname</b>
+          </th>
+          <th><b>Result</b>
+          </th>
+          <th><b>Date</b>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="searchable">
+        {% for element in meetups_p_defence %}
+          <tr class="warning">
+            <td>{{ element.nickname}}</td>
+            <td>{{ element.Meetup.result }}</td>
+            <td>{{ element.Meetup.meetup_date }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>You haven't been attacked yet</p>
+  {% endif %}
+{% endblock %}

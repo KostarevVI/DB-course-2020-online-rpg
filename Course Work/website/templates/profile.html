@@ -1,0 +1,63 @@
+{% extends "base.html" %} {% block title %} Profile {% endblock %} {% block content%}
+<h1 align="center">Profile</h1>
+<h5>Enter your old password to change current Nickname</h5>
+<form method="POST">
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="Enter email"
+                value={{user_profile.email}}
+                readonly
+        />
+    </div>
+    <div class="form-group">
+        <label for="nickname">Nickname</label>
+        <input
+                type="text"
+                class="form-control"
+                id="nickname"
+                name="nickname"
+                placeholder="Enter Nickname"
+                value={{user_profile.nickname}}
+        />
+    </div>
+    <div class="form-group">
+        <label for="password1">Current Password</label>
+        <input
+                type="password"
+                class="form-control"
+                id="password1"
+                name="password1"
+                placeholder="Enter Current Password"
+        />
+    </div>
+    <div class="form-group">
+        <label for="password2">New Password</label>
+        <input
+                type="password"
+                class="form-control"
+                id="password2"
+                name="password2"
+                placeholder="Enter New Password"
+                value=""
+        />
+    </div>
+    <div class="form-group">
+        <label for="password3">New Password (Confirm)</label>
+        <input
+                type="password"
+                class="form-control"
+                id="password3"
+                name="password3"
+                placeholder="Confirm New Password"
+        />
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-success btn-lg btn-block">Save</button>
+</form>
+
+{% endblock %}

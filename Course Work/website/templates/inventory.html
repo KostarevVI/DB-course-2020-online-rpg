@@ -1,0 +1,108 @@
+{% extends "base.html" %} {% block title %} Inventory {% endblock %} {% block content%}
+<h1 align="center">Inventory</h1>
+<br>
+<div class="row" align="right">
+    <div class="col-md-2"><h5>From Inventory:</h5></div>
+    <div class="col-md-3">
+        <select class="form-control" id="inventoriesSelect1">
+        {% for inventory in inventories_of_person %}
+            <option value={{inventory.id}}>{{ inventory.id }}</option>
+        {% endfor %}
+    </select>
+    </div>
+    <div class="col-md-2"><h5>To Inventory:</h5></div>
+    <div class="col-md-3">
+        <select class="form-control" id="inventoriesSelect2">
+        {% for inventory in inventories_of_person %}
+            <option value={{inventory.id}}>{{ inventory.id }}</option>
+        {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="button" class="btn btn-info" onClick="inventorySelect()">Select</button>
+    </div>
+</div>
+<br>
+<form name="inv_form" method="POST">
+<div class="row" align="center">
+    <div class="col-md-6">
+<h4>From:</h4>
+        <p>{{inventory_of_person_1.id}}</p>
+        {% set item_counter_1 = namespace(a=0) %}
+    <table id="inventory_person_1_table">
+      <thead>
+        <tr>
+          <th><b>Name</b>
+          </th>
+          <th><b>Amount</b>
+          </th>
+            <th><b>Transfer</b>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="searchable">
+        {% for i in items_in_inventory_1 %}
+          <tr class="warning">
+            <td>{{ i.item.name}}</td>
+            <td align="center">{{ i.amount }}</td>
+            <td align="center">
+                <div class="row" align="center">
+                    <div class="col-md-6">
+                        <select class="form-control form-control-sm" name="selectTransfer">
+                        {% for amount in range(i.amount) %}
+                            <option value={{amount+1}}>{{ amount+1 }}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check pull-left">
+                        <input class="form-check-input" type="checkbox" value="{{ (loop.index-1)|string +'_'+i.item_id|string}}" name="checkTransfer">
+                        </div>
+                    </div>
+                </div>
+            </td>
+          </tr>
+            {% set item_counter_1.a = item_counter_1.a + i.amount %}
+        {% endfor %}
+      </tbody>
+    </table>
+    <p>Size: {{item_counter_1.a}}/{{inventory_of_person_1.inventory_size}}</p>
+    </div>
+<div class="col-md-6">
+<h4>To:</h4>
+  {% if items_in_inventory_2 != None and inventory_of_person_1.id != inventory_of_person_2.id %}
+    {% set item_counter_2 = namespace(a=0) %}
+    <p>{{inventory_of_person_2.id}}</p>
+    <table id="inventory_person_2_table">
+      <thead>
+        <tr>
+          <th><b>Name</b>
+          </th>
+          <th><b>Amount</b>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="searchable">
+        {% for j in items_in_inventory_2 %}
+          <tr class="warning">
+            <td>{{ j.item.name }}</td>
+            <td align="center">{{ j.amount }}</td>
+          </tr>
+            {% set item_counter_2.a = item_counter_2.a + j.amount %}
+        {% endfor %}
+      </tbody>
+    </table>
+    <p>Size: {{item_counter_2.a}}/{{inventory_of_person_2.inventory_size}}</p>
+  {% else %}
+    <br><br><br><br><br>
+    <p>Choose inventory or you don't have another one</p>
+  {% endif %}
+    </div>
+</div>
+{% if items_in_inventory_2 != None and inventory_of_person_1.id != inventory_of_person_2.id %}
+    <button type="submit" class="btn btn-success btn-lg pull-right" name="transferBtn" value="{{item_counter_2.a}}">Transfer</button>
+{% else %}
+    <button type="button" class="btn btn-secondary btn-lg pull-right" disabled>Transfer</button>
+{% endif %}
+</form>
+{% endblock %}

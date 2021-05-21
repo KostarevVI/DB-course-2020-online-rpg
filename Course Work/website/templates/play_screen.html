@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% block title %}Play Screen{% endblock %} {% block content %}
+<h1 align="center">Play Screen</h1>
+
+<form method="POST">
+  <div class="form-group col-md-7 mx-auto">
+    <label for="nickname">Opponents Nickname</label>
+    <input
+      type="text"
+      class="form-control"
+      id="nickname"
+      name="nickname"
+      placeholder="Enter Nickname of User which you want to attack or leave Empty for Random"
+    />
+  </div>
+  <div class="form-group col-md-7 mx-auto">
+    <label for="battleInventorySelect">Select inventory for battle</label>
+    <select class="form-control" id="battleInventorySelect" name="battleInventorySelect">
+        {% for inventory in inventories_of_person %}
+            <option value={{inventory.id}}>{{ inventory.id }}</option>
+        {% endfor %}
+    </select>
+  </div>
+  <br />
+  <div class="col text-center">
+    <button type="submit" class="btn btn-success btn-lg center" name="battleBtn">Battle!</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %} {% block title %} Leaderboard {% endblock %} {% block content%}
+<h1 align="center">Leaderboard</h1>
+<h4>{{user_leaderboard.nickname}}, Your Stats Is:</h4>
+<div class="row" align="center">
+    <div class="col-md-3">
+        <h5>Rank: {{user_leaderboard.row_number}}</h5>
+    </div>
+    <div class="col-md-3">
+        <h5>Wins: {{user_leaderboard.wins_amount}}</h5>
+    </div>
+    <div class="col-md-3">
+        <h5>Draw: {{user_leaderboard.draws_amount}}</h5>
+    </div>
+    <div class="col-md-3">
+        <h5>Loose: {{user_leaderboard.looses_amount}}</h5>
+    </div>
+</div>
+<br>
+  {% if leaderboard_paging.items|length > 0 %}
+    <table id="user_meetups_table">
+      <thead>
+        <tr>
+          <th><b>Rank</b>
+          </th>
+          <th><b>Nickname</b>
+          </th>
+          <th><b>Wins</b>
+          </th>
+          <th><b>Draws</b>
+          </th>
+          <th><b>Loses</b>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="searchable">
+        {% for element in leaderboard_paging.items %}
+          <tr class="warning">
+            <td>{{ element.row_number}}</td>
+            <td>{{ element.nickname }}</td>
+            <td>{{ element.wins_amount }}</td>
+            <td>{{ element.draws_amount }}</td>
+            <td>{{ element.looses_amount }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class=pagination>
+      {% for page in leaderboard_paging.iter_pages(left_edge=2, right_edge=2, left_current=3, right_current=4) %}
+        {% if page %}
+          {% if page != leaderboard_paging.page %}
+            <a href="{{ url_for('game_menu.leaderboard', page_number=page) }}">{{ page }}</a>&ensp;
+          {% else %}
+            <strong>{{ page }}</strong>&ensp;
+          {% endif %}
+        {% else %}
+          <span class=ellipsis>…&ensp; </span>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>There is no battles in this game yet</p>
+  {% endif %}
+{% endblock %}

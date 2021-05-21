@@ -1,0 +1,79 @@
+<script>
+  function createPerson() {
+  var perClass = $("#classesOfPersonSelect option:selected").val();
+  fetch("/create-person", {
+    method: "POST",
+    body: JSON.stringify({ perClass: perClass }),
+  }).then((_res) => {
+    window.location.href = "/";
+  });
+}
+</script>
+
+
+{% extends "base.html" %} {% block title %} Select Person {% endblock %} {% block content%}
+<h1 align="center">Select Person</h1>
+  {% if persons_of_user|length > 0 %}
+    <table id="persons_table">
+      <thead>
+        <tr>
+          <th><b>Class</b>
+          </th>
+          <th><b>Health</b>
+          </th>
+          <th><b>Experience</b>
+          </th>
+          <th><b>Last seen</b>
+          </th>
+          <th><b></b>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="searchable">
+        {% for element in persons_of_user %}
+          <tr class="warning">
+            <td>{{ element.class_of_person.name }}</td>
+            <td>{{ element.health }}</td>
+            <td>{{ element.experience }}</td>
+            <td>{{ element.update_date }}</td>
+            <td>
+              <div class="pull-right">
+                <button type="button" class="btn btn-outline-success" onClick="playPerson({{ element.id }})">Play</button>
+                <button type="button" class="btn btn-danger" onClick="deletePerson({{ element.id }})">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>You Have No Persons</p>
+  {% endif %}
+<br>
+<button type="button" class="btn btn-primary btn-lg pull-right" data-toggle="modal" data-target="#createPersonModal">
+  Create New Person
+</button>
+<div id="createPersonModal" class="modal fade">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-body">
+                      <p>Select your class</p>
+                      <select class="form-control" id="classesOfPersonSelect">
+                        {% for class in classes_of_person %}
+                        <option value={{class.id}}>{{ class.name }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="modal-footer">
+                      <button class="btn btn-outline-primary" data-dismiss="modal">Cancel</button>
+                      <button type="button" class="btn btn-success" onClick="createPerson()">Create
+                        <span aria-hidden="true"></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+</div>
+
+{% endblock %}
